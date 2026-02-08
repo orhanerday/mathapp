@@ -597,6 +597,10 @@ button,
         display: none;
     }
 
+    .answer-btn::before {
+        display: none;
+    }
+
     .answer-btn {
         padding: 1.5rem;
         min-height: 70px;
