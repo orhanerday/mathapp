@@ -2,12 +2,12 @@
     "name": "Math Practice",
     "short_name": "MathPractice",
     "description": "A minimal, focused web application for practicing core math fundamentals",
-    "start_url": "/",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0a0a0b",
     "theme_color": "#6366f1",
     "orientation": "portrait",
-    "scope": "/",
+    "scope": "./",
     "icons": [
         {
             "src": "icons/icon-72.png",

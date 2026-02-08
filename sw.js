@@ -1,11 +1,11 @@
 // Service Worker for Math Practice PWA
 const CACHE_NAME = 'math-practice-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/manifest.json'
+    './',
+    './index.html',
+    './styles.css',
+    './app.js',
+    './manifest.json'
 ];
 
 // Install event - cache assets
