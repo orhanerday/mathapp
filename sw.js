@@ -1,5 +1,5 @@
 // Service Worker for Math Practice PWA
-const CACHE_NAME = 'math-practice-v1';
+const CACHE_NAME = 'math-practice-v2';
 const urlsToCache = [
     './',
     './index.html',

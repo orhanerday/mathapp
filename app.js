@@ -351,6 +351,7 @@
             const btn = document.createElement('button');
             btn.className = 'answer-btn';
             btn.dataset.key = index + 1;
+            btn.dataset.value = option; // Store value for comparison
             btn.textContent = option;
             btn.addEventListener('click', () => handleAnswer(option, btn));
             elements.answersContainer.appendChild(btn);
@@ -375,7 +376,7 @@
             // Show correct answer
             const buttons = elements.answersContainer.querySelectorAll('.answer-btn');
             buttons.forEach(btn => {
-                if (parseInt(btn.textContent) === question.answer) {
+                if (Number(btn.dataset.value) === question.answer) {
                     btn.classList.add('correct');
                 }
             });
