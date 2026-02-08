@@ -591,7 +591,9 @@ button,
 
 /* Hide keyboard hint on touch devices */
 @media (hover: none) and (pointer: coarse) {
-    .keyboard-hint {
+
+    .keyboard-hint,
+    .app-footer {
         display: none;
     }
 
