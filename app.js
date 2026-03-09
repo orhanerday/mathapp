@@ -2,11 +2,18 @@
 (function () {
     'use strict';
 
+    // Special multiplication pairs
+    const SPECIAL_PAIRS = [
+        [9, 3], [7, 5], [3, 6], [9, 6],
+        [8, 7], [9, 7], [6, 7], [9, 8], [9, 4]
+    ];
+
     // State
     const state = {
         mode: null,
         config: {
             multipliers: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+            specialMode: false,
             operators: ['>', '<'],
             questionCount: 10
         },
@@ -76,6 +83,31 @@
             `;
             container.appendChild(label);
         }
+
+        // Add "Special" checkbox
+        const specialLabel = document.createElement('label');
+        specialLabel.className = 'checkbox-item';
+        specialLabel.innerHTML = `
+            <input type="checkbox" value="special" id="special-checkbox">
+            <span class="checkbox-label">★ Special</span>
+        `;
+        container.appendChild(specialLabel);
+
+        // When Special is checked, uncheck others; when others are checked, uncheck Special
+        const specialCheckbox = specialLabel.querySelector('input');
+        specialCheckbox.addEventListener('change', () => {
+            if (specialCheckbox.checked) {
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    if (cb !== specialCheckbox) cb.checked = false;
+                });
+            }
+        });
+
+        container.addEventListener('change', (e) => {
+            if (e.target !== specialCheckbox && e.target.type === 'checkbox' && e.target.checked) {
+                specialCheckbox.checked = false;
+            }
+        });
     }
 
     // Bind all events
@@ -182,11 +214,16 @@
 
         // Get config
         if (mode === 'multiplication') {
-            const checkboxes = elements.multiplierOptions.querySelectorAll('input:checked');
-            state.config.multipliers = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            const specialCheckbox = document.getElementById('special-checkbox');
+            state.config.specialMode = specialCheckbox && specialCheckbox.checked;
+
+            if (!state.config.specialMode) {
+                const checkboxes = elements.multiplierOptions.querySelectorAll('input:checked');
+                state.config.multipliers = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            }
             state.config.questionCount = parseInt(elements.multQuestionCount.value);
 
-            if (state.config.multipliers.length === 0) {
+            if (!state.config.specialMode && state.config.multipliers.length === 0) {
                 alert('Please select at least one multiplier');
                 return;
             }
@@ -219,30 +256,50 @@
         const count = state.config.questionCount;
 
         if (mode === 'multiplication') {
-            const usedCombos = new Set();
-            let attempts = 0;
-            const maxAttempts = count * 10;
+            if (state.config.specialMode) {
+                // Use the predefined special pairs, shuffled
+                const shuffledPairs = [...SPECIAL_PAIRS].sort(() => Math.random() - 0.5);
+                // Cycle through pairs if count > pairs length
+                for (let i = 0; i < count; i++) {
+                    const pair = shuffledPairs[i % shuffledPairs.length];
+                    const factor = pair[0];
+                    const multiplier = pair[1];
+                    const answer = factor * multiplier;
 
-            while (questions.length < count && attempts < maxAttempts) {
-                attempts++;
-                const multiplier = state.config.multipliers[
-                    Math.floor(Math.random() * state.config.multipliers.length)
-                ];
-                const factor = Math.floor(Math.random() * 9) + 2; // 2-10
-                const comboKey = `${factor}x${multiplier}`;
+                    questions.push({
+                        type: 'multiplication',
+                        symbolic: `${factor} × ${multiplier}`,
+                        textual: `${numberWords[factor] || factor} times ${numberWords[multiplier] || multiplier}`,
+                        answer: answer,
+                        options: generateOptions(answer)
+                    });
+                }
+            } else {
+                const usedCombos = new Set();
+                let attempts = 0;
+                const maxAttempts = count * 10;
 
-                if (usedCombos.has(comboKey)) continue;
-                usedCombos.add(comboKey);
+                while (questions.length < count && attempts < maxAttempts) {
+                    attempts++;
+                    const multiplier = state.config.multipliers[
+                        Math.floor(Math.random() * state.config.multipliers.length)
+                    ];
+                    const factor = Math.floor(Math.random() * 9) + 2; // 2-10
+                    const comboKey = `${factor}x${multiplier}`;
 
-                const answer = multiplier * factor;
+                    if (usedCombos.has(comboKey)) continue;
+                    usedCombos.add(comboKey);
 
-                questions.push({
-                    type: 'multiplication',
-                    symbolic: `${factor} × ${multiplier}`,
-                    textual: `${numberWords[factor] || factor} times ${numberWords[multiplier] || multiplier}`,
-                    answer: answer,
-                    options: generateOptions(answer)
-                });
+                    const answer = multiplier * factor;
+
+                    questions.push({
+                        type: 'multiplication',
+                        symbolic: `${factor} × ${multiplier}`,
+                        textual: `${numberWords[factor] || factor} times ${numberWords[multiplier] || multiplier}`,
+                        answer: answer,
+                        options: generateOptions(answer)
+                    });
+                }
             }
         } else {
             for (let i = 0; i < count; i++) {
